@@ -22,7 +22,7 @@ class Adaline:
         return weighted_sum
     
     def fit_plot(self, Xtrain, Ltrain, Xtest, Ltest):
-        fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(17, 6))
+        fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(10, 11))
 
         # self.epohs = int(self.epohs)
 
@@ -37,8 +37,9 @@ class Adaline:
         ax1.set_xlabel("Άξονας Χ")
         ax1.set_ylabel("Άξονας Υ")
 
-        for epoh in range(self.epohs):
+        mse = []  # Initialize a list to store the MSE for each epoch
 
+        for epoh in range(self.epohs):
             self.train_epoh(Xtrain, Ltrain)
             predictions = self.predict(Xtest)
 
@@ -53,7 +54,7 @@ class Adaline:
             ax2.plot(np.linspace(0, 1, 200), fix)
             ax2.set_xlim([0, 1])
             ax2.set_ylim([0, 1])
-            ax2.set_title("Γράφημα προτύπων - Εκαπίδευση" + (f'\n(Epoh {epoh+1})'))
+            ax2.set_title("Γράφημα προτύπων - Εκπαίδευση" + (f' (Epoh {epoh+1})'))
             ax2.set_xlabel("Άξονας Χ")  
             ax2.set_ylabel("Άξονας Υ")
 
@@ -62,14 +63,25 @@ class Adaline:
             ax3.scatter(range(Xtrain.shape[0]), outputs, c=Ltrain, cmap=ListedColormap(['blue', '#FF00FF']), marker='*')
             ax3.set_xlim([0, Xtrain.shape[0]])
             ax3.set_ylim([0, 1])
-            ax3.set_title("Γράφημα εξόδων προτύπων" + (f'\n(Epoh {epoh+1})'))
+            ax3.set_title("Γράφημα εξόδων προτύπων" + (f' (Epoh {epoh+1})'))
             ax3.set_xlabel("Πρότυπο")
             ax3.set_ylabel("Έξοδος Y")
 
+            # Calculate and store the MSE for the current epoch
+            mse.append(np.mean((Ltrain - self.predict(Xtrain))**2))
 
-            plt.draw()
-            plt.pause(0.01)
-            time.sleep(0.01)
+            ax4.clear()
+            ax4.plot(range(1, epoh + 2), mse)
+            ax4.set_xlim([1, self.epohs])
+            #ax4.set_ylim([0, 0.3])
+            ax4.set_title("MSE κατά την εκπαίδευση")
+            ax4.set_xlabel("Εποχή")
+            ax4.set_ylabel("MSE")
+            plt.pause(0.001)
+
+        plt.draw()
+        plt.pause(0.01)
+        time.sleep(0.01)
 
         plt.close(fig)
         fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(10, 11))
@@ -85,6 +97,7 @@ class Adaline:
         ax1.set_title("Γράφημα προτύπων")
         ax1.set_xlabel("Άξονας Χ")
         ax1.set_ylabel("Άξονας Υ")
+
 
         ax2.scatter(Xtest[predictions==1, 0], Xtest[predictions==1, 1], c='#FF00FF', marker='*', edgecolors='#FF00FF')
         ax2.scatter(Xtest[predictions==0, 0], Xtest[predictions==0, 1], marker='o', edgecolors='blue', facecolors='none')
@@ -148,7 +161,7 @@ class Adaline:
 #     if n.isdigit() and int(n) % 8 == 0:
 #         n = int(n)
 #         break
-n = 40
+n = 104
 
 print('''
 Your options are:
