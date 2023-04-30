@@ -26,7 +26,7 @@ class Adaline:
     def fit_plot(self, Xtrain, Ltrain, Xtest, Ltest):
         fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(10, 11))
 
-        # self.epohs = int(self.epohs)
+        mse = []
 
         for i in range(len(Xtest)):
             if Ltest[i] == 0:
@@ -38,8 +38,9 @@ class Adaline:
         ax1.set_title("Γράφημα προτύπων")
         ax1.set_xlabel("Άξονας Χ")
         ax1.set_ylabel("Άξονας Υ")
-
-        mse = []
+        Xtrain2 = np.hstack((np.ones((Xtrain.shape[0], 1)), Xtrain))
+        weights, _, _, _ = np.linalg.lstsq(Xtrain2, Ltrain, rcond=None)
+        ax1.plot(np.array(ax1.get_xlim()), -(weights[1]*np.array(ax1.get_xlim()) + weights[0] - 0.5) / weights[2], '-')
 
         for epoh in range(self.epohs):
             self.train_epoh(Xtrain, Ltrain)
@@ -48,10 +49,7 @@ class Adaline:
             ax2.clear()
             ax2.scatter(Xtest[predictions==1, 0], Xtest[predictions==1, 1], c='#FF00FF', marker='*', edgecolors='#FF00FF')
             ax2.scatter(Xtest[predictions==0, 0], Xtest[predictions==0, 1], marker='o', edgecolors='blue', facecolors='none')
-            w1, w2 = self.weights
-            fix = -(w1 * (np.linspace(0, 1, 200) - np.mean(Xtest[:, 0])) / np.std(Xtest[:, 0]) + self.bias) / w2
-            fix = fix * np.std(Xtest[:, 0]) + np.mean(Xtest[:, 0])
-            ax2.plot(np.linspace(0, 1, 200), fix)
+            ax2.plot(np.linspace(0, 1, 200), -(self.weights[0]*np.linspace(0, 1, 200) + self.bias - 0.5) / self.weights[1])
             ax2.set_xlim([-0.015, 1.015])
             ax2.set_ylim([-0.015, 1.015])
             ax2.set_title("Γράφημα προτύπων - Εκπαίδευση" + (f' (Epoh {epoh+1})'))
@@ -68,18 +66,18 @@ class Adaline:
             ax3.set_ylabel("Έξοδος Y")
     
             mse.append(np.mean((Ltrain - self.predict(Xtrain))**2))
-            avg_error = np.mean((Ltrain - self.predict(Xtrain))**2)
-            plt.plot(epoh, avg_error, marker='.')
+            plt.plot(np.arange(len(mse)), mse)
             ax4.relim()
             ax4.autoscale(True, True, True)
             ax4.set_title("MSE κατά την εκπαίδευση")
             ax4.set_xlabel("Εποχή")
             ax4.set_ylabel("MSE")
+            ax4.set_xlim([0, epohs])
+            ax4.set_ylim([min(mse) - min(mse) * 0.1 , max(mse) + max(mse) * 0.1])
             ticks = np.arange(epoh)
             ax4.set_xticks(ticks[::3])
             ax4.set_xticklabels(ticks[::3])
             plt.xticks(rotation=90)
-
             plt.pause(0.001)
 
         plt.draw()
@@ -101,16 +99,14 @@ class Adaline:
         ax1.set_title("Γράφημα προτύπων")
         ax1.set_xlabel("Άξονας Χ")
         ax1.set_ylabel("Άξονας Υ")
+        Xtrain2 = np.hstack((np.ones((Xtrain.shape[0], 1)), Xtrain))
+        weights, _, _, _ = np.linalg.lstsq(Xtrain2, Ltrain, rcond=None)
+        ax1.plot(np.array(ax1.get_xlim()), -(weights[1]*np.array(ax1.get_xlim()) + weights[0] - 0.5) / weights[2], '-')
 
 
         ax2.scatter(Xtest[predictions==1, 0], Xtest[predictions==1, 1], c='#FF00FF', marker='*', edgecolors='#FF00FF')
         ax2.scatter(Xtest[predictions==0, 0], Xtest[predictions==0, 1], marker='o', edgecolors='blue', facecolors='none')
-        
-        w1, w2 = self.weights
-        fix = -(w1 * (np.linspace(0, 1, 200) - np.mean(Xtest[:, 0])) / np.std(Xtest[:, 0]) + self.bias) / w2
-        fix = fix * np.std(Xtest[:, 0]) + np.mean(Xtest[:, 0])
-
-        ax2.plot(np.linspace(0, 1, 200), fix)
+        ax2.plot(np.linspace(0, 1, 200), -(self.weights[0]*np.linspace(0, 1, 200) + self.bias - 0.5) / self.weights[1])
         ax2.set_xlim([-0.015, 1.015])
         ax2.set_ylim([-0.015, 1.015])
         ax2.set_title("Γράφημα προτύπων - Εκαπίδευση" + (f' (Epoh {epoh+1})'))
@@ -122,7 +118,6 @@ class Adaline:
                 ax3.scatter(i+1, 0, marker='o',  color='blue', facecolors='none', s=150)
             else:
                 ax3.scatter(i+1, 1, marker='o', color='#FF00FF', facecolors='none', s=150)
-
         ax3.scatter(np.where(Ltest == 0)[0]+1, Ltest[Ltest == 0], marker='x', c='#00FF00')
         ax3.scatter(np.where(Ltest == 1)[0]+1, Ltest[Ltest == 1], marker='x', c='#00FF00')
         ax3.set_xlim([0, len(Xtest)+0.5])
@@ -137,25 +132,38 @@ class Adaline:
                   ]
         ax3.legend(handles=markers, loc='center left')
 
-        ax4.scatter(range(Xtrain.shape[0]), outputs, c=Ltrain, cmap=ListedColormap(['blue', '#FF00FF']), marker='*')
-        ax4.set_xlim([-0.3, Xtrain.shape[0]])
-        ax4.set_ylim([-0.015, 1.015])
-        ax4.set_title("Γράφημα εξόδων προτύπων" + (f' (Epoh {epoh+1})'))
+        Xtest2 = np.hstack((np.ones((Xtest.shape[0], 1)), Xtest))
+        predicted = Xtest2 @ weights
+        predicted01 = np.where(predicted >= 0.5, 1, 0)
+
+        for i in range(len(Xtest)):
+            if predicted01[i] == 0:
+                ax4.scatter(i+1, 0, marker='o',  color='blue', facecolors='none', s=150)
+            else:
+                ax4.scatter(i+1, 1, marker='o', color='#FF00FF', facecolors='none', s=150)
+        ax4.scatter(np.where(Ltest == 0)[0]+1, Ltest[Ltest == 0], marker='x', c='#00FF00')
+        ax4.scatter(np.where(Ltest == 1)[0]+1, Ltest[Ltest == 1], marker='x', c='#00FF00')
+        ax4.set_xlim([0, len(Xtest)+0.5])
+        ax4.set_ylim([-0.02,  1.02])
+        ax4.set_title("Γράφημα εξόδων-στόχων προτύπων")
         ax4.set_xlabel("Πρότυπο")
         ax4.set_ylabel("Έξοδος Y")
-
-
-
+        markers = [
+                    Line2D([0], [0], marker=MarkerStyle(marker='o', fillstyle='none'), color='blue', label='Class 0 prediction', linestyle=''),
+                    Line2D([0], [0], marker=MarkerStyle(marker='o', fillstyle='none'), color='#FF00FF', label='Class 1 prediction', linestyle=''),
+                    Line2D([0], [0], marker='x', color='#00FF00', label='Where they should be', linestyle='')
+                  ]
+        ax4.legend(handles=markers, loc='center left')
         plt.show()
 
-    def train_epoh(self, X, y):
+    def train_epoh(self, x, y):
         self.trained += 1
         if self.weights is None:
-            self.weights = np.random.rand(X.shape[1])
+            self.weights = np.random.rand(x.shape[1])
         if self.bias is None:
             self.bias = 0.0
         cost = 0.0
-        for xi, target in zip(X, y):
+        for xi, target in zip(x, y):
                 sum = self.weighted_sum(xi)
                 output = self.activation(sum)
                 error = (target - output)
@@ -164,20 +172,15 @@ class Adaline:
                 cost = 0.5 * error ** 2
         return cost
 
-    def predict(self, X):
-            return np.where(self.activation(self.weighted_sum(X)) >= 0.5, 1, 0)
+    def predict(self, x):
+            return np.where(self.activation(self.weighted_sum(x)) >= 0.5, 1, 0)
 
 
-
-
-
-
-# while True:
-#     n = input("Please give a number that's a multiple of 8: ")
-#     if n.isdigit() and int(n) % 8 == 0:
-#         n = int(n)
-#         break
-n = 80
+while True:
+    n = input("Please give a number that's a multiple of 8: ")
+    if n.isdigit() and int(n) % 8 == 0:
+        n = int(n)
+        break
 
 print('''
 Your options are:

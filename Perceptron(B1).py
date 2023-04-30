@@ -21,7 +21,6 @@ class Perceptron:
 
     def plot(self, Xtrain, Ltrain, Xtest, Ltest):
         fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(17, 6))
-
         # self.epohs = int(self.epohs)
 
         for i in range(len(Xtest)):
