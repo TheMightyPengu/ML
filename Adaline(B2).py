@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import time
 from matplotlib.colors import ListedColormap
 import BigData as BD
+from matplotlib.lines import Line2D
+from matplotlib.markers import MarkerStyle
 
 class Adaline:
     
@@ -31,13 +33,13 @@ class Adaline:
                 ax1.scatter(Xtest[i][0], Xtest[i][1], marker='o', color='blue', edgecolors='blue', facecolors='none')
             else:
                 ax1.scatter(Xtest[i][0], Xtest[i][1], marker='*', color='#FF00FF')
-        ax1.set_xlim([0, 1])
-        ax1.set_ylim([0, 1])
+        ax1.set_xlim([-0.015, 1.015])
+        ax1.set_ylim([-0.015, 1.015])
         ax1.set_title("Γράφημα προτύπων")
         ax1.set_xlabel("Άξονας Χ")
         ax1.set_ylabel("Άξονας Υ")
 
-        mse = []  # Initialize a list to store the MSE for each epoch
+        mse = []
 
         for epoh in range(self.epohs):
             self.train_epoh(Xtrain, Ltrain)
@@ -46,14 +48,12 @@ class Adaline:
             ax2.clear()
             ax2.scatter(Xtest[predictions==1, 0], Xtest[predictions==1, 1], c='#FF00FF', marker='*', edgecolors='#FF00FF')
             ax2.scatter(Xtest[predictions==0, 0], Xtest[predictions==0, 1], marker='o', edgecolors='blue', facecolors='none')
-
             w1, w2 = self.weights
             fix = -(w1 * (np.linspace(0, 1, 200) - np.mean(Xtest[:, 0])) / np.std(Xtest[:, 0]) + self.bias) / w2
             fix = fix * np.std(Xtest[:, 0]) + np.mean(Xtest[:, 0])
-
             ax2.plot(np.linspace(0, 1, 200), fix)
-            ax2.set_xlim([0, 1])
-            ax2.set_ylim([0, 1])
+            ax2.set_xlim([-0.015, 1.015])
+            ax2.set_ylim([-0.015, 1.015])
             ax2.set_title("Γράφημα προτύπων - Εκπαίδευση" + (f' (Epoh {epoh+1})'))
             ax2.set_xlabel("Άξονας Χ")  
             ax2.set_ylabel("Άξονας Υ")
@@ -61,22 +61,25 @@ class Adaline:
             ax3.clear()
             outputs = self.predict(Xtrain)
             ax3.scatter(range(Xtrain.shape[0]), outputs, c=Ltrain, cmap=ListedColormap(['blue', '#FF00FF']), marker='*')
-            ax3.set_xlim([0, Xtrain.shape[0]])
-            ax3.set_ylim([0, 1])
+            ax3.set_xlim([-0.3, Xtrain.shape[0]])
+            ax3.set_ylim([-0.015, 1.015])
             ax3.set_title("Γράφημα εξόδων προτύπων" + (f' (Epoh {epoh+1})'))
             ax3.set_xlabel("Πρότυπο")
             ax3.set_ylabel("Έξοδος Y")
-
-            # Calculate and store the MSE for the current epoch
+    
             mse.append(np.mean((Ltrain - self.predict(Xtrain))**2))
-
-            ax4.clear()
-            ax4.plot(range(1, epoh + 2), mse)
-            ax4.set_xlim([1, self.epohs])
-            #ax4.set_ylim([0, 0.3])
+            avg_error = np.mean((Ltrain - self.predict(Xtrain))**2)
+            plt.plot(epoh, avg_error, marker='.')
+            ax4.relim()
+            ax4.autoscale(True, True, True)
             ax4.set_title("MSE κατά την εκπαίδευση")
             ax4.set_xlabel("Εποχή")
             ax4.set_ylabel("MSE")
+            ticks = np.arange(epoh)
+            ax4.set_xticks(ticks[::3])
+            ax4.set_xticklabels(ticks[::3])
+            plt.xticks(rotation=90)
+
             plt.pause(0.001)
 
         plt.draw()
@@ -84,6 +87,7 @@ class Adaline:
         time.sleep(0.01)
 
         plt.close(fig)
+
         fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(10, 11))
 
         for i in range(len(Xtest)):
@@ -92,8 +96,8 @@ class Adaline:
             else:
                 ax1.scatter(Xtest[i][0], Xtest[i][1], marker='*', color='#FF00FF')
                 
-        ax1.set_xlim([0, 1])
-        ax1.set_ylim([0, 1])
+        ax1.set_xlim([-0.015, 1.015])
+        ax1.set_ylim([-0.015, 1.015])
         ax1.set_title("Γράφημα προτύπων")
         ax1.set_xlabel("Άξονας Χ")
         ax1.set_ylabel("Άξονας Υ")
@@ -107,28 +111,40 @@ class Adaline:
         fix = fix * np.std(Xtest[:, 0]) + np.mean(Xtest[:, 0])
 
         ax2.plot(np.linspace(0, 1, 200), fix)
-        ax2.set_xlim([0, 1])
-        ax2.set_ylim([0, 1])
+        ax2.set_xlim([-0.015, 1.015])
+        ax2.set_ylim([-0.015, 1.015])
         ax2.set_title("Γράφημα προτύπων - Εκαπίδευση" + (f' (Epoh {epoh+1})'))
         ax2.set_xlabel("Άξονας Χ")  
         ax2.set_ylabel("Άξονας Υ")
 
-        ax3.scatter(range(Xtrain.shape[0]), outputs, c=Ltrain, cmap=ListedColormap(['blue', '#FF00FF']), marker='*')
-        ax3.set_xlim([0, Xtrain.shape[0]])
-        ax3.set_ylim([0, 1])
-        ax3.set_title("Γράφημα εξόδων προτύπων" + (f' (Epoh {epoh+1})'))
+        for i in range(len(Xtest)):
+            if predictions[i] == 0:
+                ax3.scatter(i+1, 0, marker='o',  color='blue', facecolors='none', s=150)
+            else:
+                ax3.scatter(i+1, 1, marker='o', color='#FF00FF', facecolors='none', s=150)
+
+        ax3.scatter(np.where(Ltest == 0)[0]+1, Ltest[Ltest == 0], marker='x', c='#00FF00')
+        ax3.scatter(np.where(Ltest == 1)[0]+1, Ltest[Ltest == 1], marker='x', c='#00FF00')
+        ax3.set_xlim([0, len(Xtest)+0.5])
+        ax3.set_ylim([-0.02,  1.02])
+        ax3.set_title("Γράφημα εξόδων-στόχων προτύπων")
         ax3.set_xlabel("Πρότυπο")
         ax3.set_ylabel("Έξοδος Y")
+        markers = [
+                    Line2D([0], [0], marker=MarkerStyle(marker='o', fillstyle='none'), color='blue', label='Class 0 prediction', linestyle=''),
+                    Line2D([0], [0], marker=MarkerStyle(marker='o', fillstyle='none'), color='#FF00FF', label='Class 1 prediction', linestyle=''),
+                    Line2D([0], [0], marker='x', color='#00FF00', label='Where they should be', linestyle='')
+                  ]
+        ax3.legend(handles=markers, loc='center left')
 
-        correct = Ltest == predictions
-        wrong = Ltest != predictions
-        ax4.scatter(Xtest[correct, 0], Xtest[correct, 1], marker='o', color='#00FF00', label='Correct')
-        ax4.scatter(Xtest[wrong, 0], Xtest[wrong, 1], marker='x', color='red', label='Incorrect')
-        ax4.set_xlim([0, 1])
-        ax4.set_ylim([0, 1])
-        ax4.set_title("Γράφημα εξόδων-στόχων προτύπων")
+        ax4.scatter(range(Xtrain.shape[0]), outputs, c=Ltrain, cmap=ListedColormap(['blue', '#FF00FF']), marker='*')
+        ax4.set_xlim([-0.3, Xtrain.shape[0]])
+        ax4.set_ylim([-0.015, 1.015])
+        ax4.set_title("Γράφημα εξόδων προτύπων" + (f' (Epoh {epoh+1})'))
         ax4.set_xlabel("Πρότυπο")
         ax4.set_ylabel("Έξοδος Y")
+
+
 
         plt.show()
 
@@ -161,7 +177,7 @@ class Adaline:
 #     if n.isdigit() and int(n) % 8 == 0:
 #         n = int(n)
 #         break
-n = 104
+n = 80
 
 print('''
 Your options are:
