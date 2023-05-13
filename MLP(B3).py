@@ -3,10 +3,6 @@ from sklearn.neural_network import MLPClassifier
 import matplotlib.pyplot as plt
 import numpy as np
 import BigData as BD
-from matplotlib.lines import Line2D
-from matplotlib.markers import MarkerStyle
-from matplotlib.colors import ListedColormap
-import time
 
 class MLP:
     n = 80
