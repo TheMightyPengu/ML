@@ -20,7 +20,7 @@ class Perceptron:
         return np.where(x >= 0, 1, 0)
 
     def plot(self, Xtrain, Ltrain, Xtest, Ltest):
-        fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(17, 6))
+        fig, (ax1, ax2,ax3) = plt.subplots(1, 3, figsize=(15, 5))
         # self.epohs = int(self.epohs)
 
         for i in range(len(Xtest)):
@@ -50,8 +50,8 @@ class Perceptron:
             ax2.set_ylabel("Άξονας Υ")
 
             ax3.clear()
-            outputs = self.predict(Xtrain)
-            ax3.scatter(range(Xtrain.shape[0]), outputs, c=Ltrain, cmap=ListedColormap(['blue', '#FF00FF']), marker='*')
+            ax3.scatter(range(len(predictions[Ltest == 0])), predictions[Ltest == 0], marker='*', c='blue', label='y_test == 0')
+            ax3.scatter(range(len(predictions[Ltest == 0]), len(Ltest)), predictions[Ltest == 1], marker='*', c='#FF00FF', label='Ltest == 1')
             ax3.set_xlim([-0.3, Xtrain.shape[0]])
             ax3.set_ylim([-0.015, 1.015])
             ax3.set_title("Γράφημα εξόδων προτύπων" + (f' (Epoh {epoh+1})'))
@@ -87,7 +87,8 @@ class Perceptron:
         ax2.set_xlabel("Άξονας Χ")  
         ax2.set_ylabel("Άξονας Υ")
 
-        ax3.scatter(range(Xtrain.shape[0]), outputs, c=Ltrain, cmap=ListedColormap(['blue', '#FF00FF']), marker='*')
+        ax3.scatter(range(len(predictions[Ltest == 0])), predictions[Ltest == 0], marker='*', c='blue', label='y_test == 0')
+        ax3.scatter(range(len(predictions[Ltest == 0]), len(Ltest)), predictions[Ltest == 1], marker='*', c='#FF00FF', label='Ltest == 1')
         ax3.set_xlim([-0.3, Xtrain.shape[0]])
         ax3.set_ylim([-0.015, 1.015])
         ax3.set_title("Γράφημα εξόδων προτύπων" + (f' (Epoh {epoh+1})'))

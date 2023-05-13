@@ -35,7 +35,7 @@ class Adaline:
                 ax1.scatter(Xtest[i][0], Xtest[i][1], marker='*', color='#FF00FF')
         ax1.set_xlim([-0.015, 1.015])
         ax1.set_ylim([-0.015, 1.015])
-        ax1.set_title("Γράφημα προτύπων")
+        ax1.set_title("Γράφημα προτύπων - Εκαπίδευση (Mean square)")
         ax1.set_xlabel("Άξονας Χ")
         ax1.set_ylabel("Άξονας Υ")
         Xtrain2 = np.hstack((np.ones((Xtrain.shape[0], 1)), Xtrain))
@@ -57,8 +57,8 @@ class Adaline:
             ax2.set_ylabel("Άξονας Υ")
 
             ax3.clear()
-            outputs = self.predict(Xtrain)
-            ax3.scatter(range(Xtrain.shape[0]), outputs, c=Ltrain, cmap=ListedColormap(['blue', '#FF00FF']), marker='*')
+            ax3.scatter(range(len(predictions[Ltest == 0])), predictions[Ltest == 0], marker='*', c='blue', label='y_test == 0')
+            ax3.scatter(range(len(predictions[Ltest == 0]), len(Ltest)), predictions[Ltest == 1], marker='*', c='#FF00FF', label='Ltest == 1')
             ax3.set_xlim([-0.3, Xtrain.shape[0]])
             ax3.set_ylim([-0.015, 1.015])
             ax3.set_title("Γράφημα εξόδων προτύπων" + (f' (Epoh {epoh+1})'))
@@ -96,7 +96,7 @@ class Adaline:
                 
         ax1.set_xlim([-0.015, 1.015])
         ax1.set_ylim([-0.015, 1.015])
-        ax1.set_title("Γράφημα προτύπων")
+        ax1.set_title("Γράφημα προτύπων - Εκαπίδευση (Mean square)")
         ax1.set_xlabel("Άξονας Χ")
         ax1.set_ylabel("Άξονας Υ")
         Xtrain2 = np.hstack((np.ones((Xtrain.shape[0], 1)), Xtrain))
@@ -122,7 +122,7 @@ class Adaline:
         ax3.scatter(np.where(Ltest == 1)[0]+1, Ltest[Ltest == 1], marker='x', c='#00FF00')
         ax3.set_xlim([0, len(Xtest)+0.5])
         ax3.set_ylim([-0.02,  1.02])
-        ax3.set_title("Γράφημα εξόδων-στόχων προτύπων")
+        ax3.set_title("Γράφημα εξόδων-στόχων προτύπων (Adaline)")
         ax3.set_xlabel("Πρότυπο")
         ax3.set_ylabel("Έξοδος Y")
         markers = [
@@ -145,7 +145,7 @@ class Adaline:
         ax4.scatter(np.where(Ltest == 1)[0]+1, Ltest[Ltest == 1], marker='x', c='#00FF00')
         ax4.set_xlim([0, len(Xtest)+0.5])
         ax4.set_ylim([-0.02,  1.02])
-        ax4.set_title("Γράφημα εξόδων-στόχων προτύπων")
+        ax4.set_title("Γράφημα εξόδων-στόχων προτύπων (Mean square)")
         ax4.set_xlabel("Πρότυπο")
         ax4.set_ylabel("Έξοδος Y")
         markers = [
