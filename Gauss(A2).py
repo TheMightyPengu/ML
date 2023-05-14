@@ -41,7 +41,6 @@ def update_point(XY, learning_rate):
     XYnew = XY - learning_rate * gradObj
     return XYnew, obj
 
-
 while abs(ObjTest) > 0.01:
     XYtest, ObjTest = update_point(XYtest, learning_rate)
     dot._offsets3d = ([XYtest[0]], [XYtest[1]], [ObjTest])

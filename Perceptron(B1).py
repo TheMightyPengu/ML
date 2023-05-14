@@ -100,7 +100,6 @@ class Perceptron:
                 ax4.scatter(i+1, 0, marker='o',  color='blue', facecolors='none', s=150)
             else:
                 ax4.scatter(i+1, 1, marker='o', color='#FF00FF', facecolors='none', s=150)
-
         ax4.scatter(np.where(Ltest == 0)[0]+1, Ltest[Ltest == 0], marker='x', c='#00FF00')
         ax4.scatter(np.where(Ltest == 1)[0]+1, Ltest[Ltest == 1], marker='x', c='#00FF00')
         ax4.set_xlim([0, len(Xtest)+0.5])
