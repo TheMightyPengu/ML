@@ -22,18 +22,6 @@ def create_BigData(n):
 
     return Xtrain, Xtest, ytrain, ytest
 
-def create_BigData2t(n):
-    # np.random.seed(0)
-    X_0 = np.random.uniform(low=0.0, high=0.3, size=(int(n/2), 2))  # Class 0 patterns with x and y in [0.0, 0.3]
-    X_1_1 = np.random.uniform(low=[0.0,0.3], high=[0.4,0.9], size=(int(n/4), 2))
-    # X_1_2 = np.random.uniform(low=[0.4,0.9], high=[0.0,0.9], size=(int(n/4), 2))
-    X_1_2 = np.random.uniform(low=[0.4,0.9], high=[0.0,0.9], size=(int(n/4), 2))
-    X_1 = np.vstack((X_1_1, X_1_2))
-
-    X = np.concatenate((X_0, X_1), axis=0)
-    labels = np.concatenate((np.zeros(len(X_0)), np.ones(len(X_1))))
-
-
 
 def create_BigData2(n):
     class0 = np.random.uniform(0.0, 0.3, int(n//2))
@@ -60,6 +48,7 @@ def create_BigData2(n):
     Ltest = labels[half:]
 
     return Xtrain, Xtest, Ltrain, Ltest
+
 
 def create_BigData3(n):
     class0 = np.random.uniform(low=[0.4, 0.4], high=[0.6, 0.6], size=(n//2, 2))
@@ -88,18 +77,42 @@ def create_BigData3(n):
     
     return Xtrain, Xtest, Ltrain, Ltest
 
-import numpy as np
 
+# def create_BigData4(n):
+#     class0_1 = np.random.uniform(low=[0.0, 0.0], high=[0.3, 0.3], size=(n//4, 2))
+#     class0_2 = np.random.uniform(low=[0.7, 0.7], high=[0.9, 0.9], size=(n//4, 2))
+#     class0 = np.concatenate((class0_1, class0_2), axis=0)
+#     labels0 = np.ones((n//2,))
+
+#     class1_1 = np.random.uniform(low=[0.7, 0.0], high=[0.9, 0.3], size=(n//4, 2))
+#     class1_2 = np.random.uniform(low=[0.0, 0.7], high=[0.3, 0.9], size=(n//4, 2))
+#     class1 = np.concatenate((class1_1, class1_2), axis=0)
+#     labels1 = np.zeros((n//2,))
+
+#     data = np.concatenate((class0, class1), axis=0)
+#     labels = np.concatenate((labels0, labels1), axis=0)
+
+#     randomize = np.random.permutation(n)
+#     data = data[randomize]
+#     labels = labels[randomize]
+
+#     half = int(n//2)
+#     Xtrain = data[:half]
+#     Ltrain = labels[:half]
+#     Xtest = data[half:]
+#     Ltest = labels[half:]
+
+#     return Xtrain, Xtest, Ltrain, Ltest
 def create_BigData4(n):
-    class0_1 = np.random.uniform(low=[0.0, 0.0], high=[0.3, 0.3], size=(n//4, 2))
-    class0_2 = np.random.uniform(low=[0.7, 0.7], high=[0.9, 0.9], size=(n//4, 2))
+    class0_1 = np.random.uniform(low=[0.0, 0.0], high=[0.3, 0.3], size=(n // 4, 2))
+    class0_2 = np.random.uniform(low=[0.7, 0.7], high=[0.9, 0.9], size=(n // 4, 2))
     class0 = np.concatenate((class0_1, class0_2), axis=0)
-    labels0 = np.ones((n//2,)) # Set labels for class0 to 1
+    labels0 = np.ones((class0.shape[0],))
 
-    class1_1 = np.random.uniform(low=[0.7, 0.0], high=[0.9, 0.3], size=(n//4, 2))
-    class1_2 = np.random.uniform(low=[0.0, 0.7], high=[0.3, 0.9], size=(n//4, 2))
+    class1_1 = np.random.uniform(low=[0.7, 0.0], high=[0.9, 0.3], size=(n // 4, 2))
+    class1_2 = np.random.uniform(low=[0.0, 0.7], high=[0.3, 0.9], size=(n // 4, 2))
     class1 = np.concatenate((class1_1, class1_2), axis=0)
-    labels1 = np.zeros((n//2,)) # Set labels for class1 to 0
+    labels1 = np.zeros((class1.shape[0],))
 
     data = np.concatenate((class0, class1), axis=0)
     labels = np.concatenate((labels0, labels1), axis=0)
@@ -108,14 +121,13 @@ def create_BigData4(n):
     data = data[randomize]
     labels = labels[randomize]
 
-    half = int(n//2)
+    half = int(n // 2)
     Xtrain = data[:half]
     Ltrain = labels[:half]
     Xtest = data[half:]
     Ltest = labels[half:]
 
     return Xtrain, Xtest, Ltrain, Ltest
-
 
 
 def create_BigData5(n):        

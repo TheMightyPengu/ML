@@ -1,0 +1,244 @@
+from turtle import update
+import numpy as np
+import lines as l
+import matplotlib.pyplot as plt
+import BigData as BD
+from minisom import MiniSom
+from matplotlib.animation import FuncAnimation
+
+
+
+# class som :
+#     def __init__(self,nebrones:int):
+#         self.lr=1
+#         self.gitonia=1
+#         self.nebrones=nebrones
+#         self.w = np.random.random_sample((som.nebrones,))
+
+#     def winner(self, X):
+#         return np.unravel_index(np.argmin(X,axis=None), X.shape)
+
+#     def ind(self, X):
+#         return np.sum(np.square(self.w-X),axis=2)
+    
+#     def __updw(self,xtr,wnr):
+#         x,y=wnr
+#         nrs=[]
+#         if self.gitonia< 1e-3:
+#             self.w[x,y,:]+=self.lr*(xtr-self.w[x,y,:])
+#             return nrs 
+#         step=int(self.gitonia*10)
+      
+#         for i in range(max(0,x-step) , min(self.w.shape[0],x+step)):
+#              for j in range(max(0,y-step) , min(self.w.shape[1],y+step)):
+#                  if((i,j)!=(x,y)):nrs.append((i,j))
+#                  nrm=np.exp(-(np.square(i-x)+np.square(j-y))/2/self.gitonia)
+#                  self.w[i,j,:]+=self.lr*nrm*(xtr-self.w[i,j,:])
+         
+#         return nrs
+    
+#     def fit_nebrones_ohonen(self,x,epochs=5000):
+#         geitonia=500
+#         self.__init_components(x,False)
+#         lr_old=self.lr
+#         gitonia_old=self.gitonia
+#         self.r=0
+#         data=np.copy(x)
+#         for e in range(epochs):
+#             np.random.shuffle(data)
+#             for x in data:
+#                 i,j=self._find_winner(
+#                     self._ind(x)
+#                 )
+#                 self.__updw(x,(i,j))
+#             self.lr=lr_old*(1-e/epochs) 
+#             self.gitonia=gitonia_old*(1-e/geitonia)
+
+
+
+###################################################################################
+
+def plot_animated(Xtrain, Xtest, Ltest, som, som_shape, epohs, k1, k2):
+    fig, ax = plt.subplots()
+
+    ax.set_xlim(0, k1-1)
+    ax.set_ylim(0, k2-1)
+
+    def update(epoh):
+        print('daskldaslkdnklasdnslakndlas')
+
+        for x in Xtrain:
+                som.update(x, som.winner(x), epoh, epohs)
+
+        ax.set_title(f"Epoch: {epoh}/{epohs}")
+
+        som.train_batch(Xtrain, 1, verbose=False)
+
+        winner_coordinates = np.array([som.winner(x) for x in Xtrain]).T
+        cluster_index = np.ravel_multi_index(winner_coordinates, som_shape)
+
+        scat = ax.scatter(Xtest[:, 0], Xtest[:, 1], c=Ltest, marker='o', cmap='coolwarm')
+        centroids = ax.scatter([], [], marker='o', s=8, linewidths=10, color='red')
+        winner_points = ax.scatter([], [], marker='o', s=8, linewidths=10, color='#00FF00')
+
+        centroids.set_offsets(som.get_weights().reshape(-1, 2))
+        winner_points.set_offsets(som.get_weights()[cluster_index].reshape(-1, 2))
+
+        return scat, centroids, winner_points,
+
+    animation = FuncAnimation(fig, update, frames=epohs, interval=50, repeat=False)
+    return animation
+
+
+def plot():
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
+
+    for i in range(len(Xtest)):
+        if Ltest[i] == 0:
+            ax1.scatter(Xtest[i][0], Xtest[i][1], marker='o', color='blue', edgecolors='blue', facecolors='none')
+        else:
+            ax1.scatter(Xtest[i][0], Xtest[i][1], marker='*', color='#FF00FF')
+    ax1.set_xlim([-0.015, 1.015])
+    ax1.set_ylim([-0.015, 1.015])
+    ax1.set_title("Γράφημα προτύπων")
+    ax1.set_xlabel("Άξονας Χ")
+    ax1.set_ylabel("Άξονας Υ")
+
+
+    winner_coordinates = np.array([som.winner(x) for x in Xtrain]).T
+    cluster_index = np.ravel_multi_index(winner_coordinates, som_shape)
+
+    ax2.set_title('Γραφική παράσταση ανταγωνιστικών νευρώνων')
+    ax2.set_xlabel("Άξονας Χ")
+    ax2.set_ylabel("Άξονας Υ")
+    for c in np.unique(cluster_index):
+        plt.scatter(Xtrain[cluster_index == c, 0], Xtrain[cluster_index == c, 1], label='cluster='+str(c))
+
+    for centroid in som.get_weights():
+        ax2.scatter(centroid[:, 0], centroid[:, 1], marker='o', s=8, linewidths=10, color='red')
+
+    for x in Xtrain:
+        i, y = som.winner(x)
+        winner = som.get_weights()[i, y]
+        ax2.scatter(winner[0], winner[1], marker='o', s=8, linewidths=10, color='#00FF00')
+
+    plt.legend()
+    plt.show()
+
+
+while True:
+    n = input("Please give a number that's a multiple of 8: ")
+    if n.isdigit() and int(n) % 8 == 0:
+        n = int(n)
+        break
+
+print('''
+Your options are:
+1. Γραμμικά Διαχωρίσιμα Πρότυπα
+2. Μη Γραμμικά Διαχωρίσιμα Πρότυπα – Κλάση 0 στη Γωνία
+3. Μη Γραμμικά Διαχωρίσιμα Πρότυπα - Κλάση 0 στο Κέντρο
+4. Μη Γραμμικά Διαχωρίσιμα Πρότυπα - Πύλη XOR
+5. Μη Γραμμικά Διαχωρίσιμα Πρότυπα - Κλάση 0 μέσα στην Κλάση 1
+6. Τέλος
+''')
+
+learning_rate = 0.05
+epohs = 1000
+k1 = 5
+k2 = 5
+
+while True:
+    option = input("\nPlease pick an option: ")
+    if option.isdigit():
+        option = int(option)
+
+    if option == 1:
+        Xtrain, Xtest, Ltrain, Ltest = BD.create_BigData(n)
+
+        learning_rate = float(input("Please pick the learning rate of the algorith: "))
+        epohs = int(input("Please pick the number of epohs you want the algorith to run for: "))
+        k1 = int(input("Please give two numbers for the competitive neurons size, FIRST number: "))
+        k2 = int(input("Please provide the SECOND number: "))
+
+        som_shape = (k1, k2)
+        som = MiniSom(som_shape[0], som_shape[1], Xtrain.shape[1], learning_rate=.5, neighborhood_function='gaussian', random_seed=10)
+        som.train_batch(Xtrain, epohs, verbose=False)
+        animation = plot_animated(Xtrain, Xtest, Ltest, som, som_shape, epohs, k1, k2)
+        plt.show()
+        plot()
+
+    elif option == 2:
+        Xtrain, Xtest, Ltrain, Ltest = BD.create_BigData2(n)
+
+        learning_rate = float(input("Please pick the learning rate of the algorith: "))
+        epohs = int(input("Please pick the number of epohs you want the algorith to run for: "))
+        k1 = int(input("Please give two numbers for the competitive neurons size, FIRST number: "))
+        k2 = int(input("Please provide the SECOND number: "))
+
+        som_shape = (k1, k2)
+        som = MiniSom(som_shape[0], som_shape[1], Xtrain.shape[1], learning_rate=.5, neighborhood_function='gaussian', random_seed=10)
+        som.train_batch(Xtrain, epohs, verbose=False)
+        animation = plot_animated(Xtrain, Xtest, Ltest, som, som_shape, epohs, k1, k2)
+        plt.show()
+        plot()
+
+    elif option == 3:
+        Xtrain, Xtest, Ltrain, Ltest = BD.create_BigData3(n)
+
+        learning_rate = float(input("Please pick the learning rate of the algorith: "))
+        epohs = int(input("Please pick the number of epohs you want the algorith to run for: "))
+        k1 = int(input("Please give two numbers for the competitive neurons size, FIRST number: "))
+        k2 = int(input("Please provide the SECOND number: "))
+
+        som_shape = (k1, k2)
+        som = MiniSom(som_shape[0], som_shape[1], Xtrain.shape[1], learning_rate=.5, neighborhood_function='gaussian')
+        som.train_batch(Xtrain, epohs, verbose=False)
+        animation = plot_animated(Xtrain, Xtest, Ltest, som, som_shape, epohs, k1, k2)
+        plt.show()
+        plot()
+
+    elif option == 4:
+        Xtrain, Xtest, Ltrain, Ltest = BD.create_BigData4(n)
+
+        learning_rate = float(input("Please pick the learning rate of the algorith: "))
+        epohs = int(input("Please pick the number of epohs you want the algorith to run for: "))
+        k1 = int(input("Please give two numbers for the competitive neurons size, FIRST number: "))
+        k2 = int(input("Please provide the SECOND number: "))
+
+        som_shape = (k1, k2)
+        som = MiniSom(som_shape[0], som_shape[1], Xtrain.shape[1], learning_rate=.5, neighborhood_function='gaussian', random_seed=10)
+        som.train_batch(Xtrain, epohs, verbose=False)
+        animation = plot_animated(Xtrain, Xtest, Ltest, som, som_shape, epohs, k1, k2)
+        plt.show()
+        plot()
+
+    elif option == 5:
+        Xtrain, Xtest, Ltrain, Ltest = BD.create_BigData5(n)
+
+        learning_rate = float(input("Please pick the learning rate of the algorith: "))
+        epohs = int(input("Please pick the number of epohs you want the algorith to run for: "))
+        k1 = int(input("Please give two numbers for the competitive neurons size, FIRST number: "))
+        k2 = int(input("Please provide the SECOND number: "))
+
+        som_shape = (k1, k2)
+        som = MiniSom(som_shape[0], som_shape[1], Xtrain.shape[1], learning_rate=.5, neighborhood_function='gaussian', random_seed=10)
+        som.train_batch(Xtrain, epohs, verbose=False)
+        animation = plot_animated(Xtrain, Xtest, Ltest, som, som_shape, epohs, k1, k2)
+        plt.show()
+        plot()
+
+    elif option == 6:
+        print("Thank you for visiting, please come again.")
+        break
+
+    else:
+        print("Thats not an option :(")
+
+
+# n = 120
+# Xtrain, Xtest, Ltrain, Ltest = BD.create_BigData3(n)
+
+# learning_rate = 0.05
+# epohs = 50
+# k1 = 4
+# k2 = 4
