@@ -8,6 +8,7 @@ from matplotlib.animation import FuncAnimation
 
 
 
+
 # class som :
 #     def __init__(self,nebrones:int):
 #         self.lr=1
@@ -37,57 +38,69 @@ from matplotlib.animation import FuncAnimation
          
 #         return nrs
     
-#     def fit_nebrones_ohonen(self,x,epochs=5000):
+#     def fit_nebrones_ohonen(self,x,epohs=5000):
 #         geitonia=500
 #         self.__init_components(x,False)
 #         lr_old=self.lr
 #         gitonia_old=self.gitonia
 #         self.r=0
 #         data=np.copy(x)
-#         for e in range(epochs):
+#         for e in range(epohs):
 #             np.random.shuffle(data)
 #             for x in data:
 #                 i,j=self._find_winner(
 #                     self._ind(x)
 #                 )
 #                 self.__updw(x,(i,j))
-#             self.lr=lr_old*(1-e/epochs) 
+#             self.lr=lr_old*(1-e/epohs) 
 #             self.gitonia=gitonia_old*(1-e/geitonia)
 
 
 
 ###################################################################################
 
-def plot_animated(Xtrain, Xtest, Ltest, som, som_shape, epohs, k1, k2):
-    fig, ax = plt.subplots()
-
-    ax.set_xlim(0, k1-1)
-    ax.set_ylim(0, k2-1)
-
+def plot_animated(model, X_train, y_train, X_test, y_test, ax, fig, num_iteration, title=None, active=False, callback=None):
+    ax.set_xlim([-0.2, 1])
+    ax.set_ylim([-0.2, 1])
+    title = ax.text(0.2, 0.85, "", bbox={'facecolor': 'w', 'alpha': 0.5, 'pad': 5},
+            transform=ax.transAxes, ha="center")
+    epohs = num_iteration
     def update(epoh):
-        print('daskldaslkdnklasdnslakndlas')
 
-        for x in Xtrain:
-                som.update(x, som.winner(x), epoh, epohs)
 
-        ax.set_title(f"Epoch: {epoh}/{epohs}")
+        for x in X_train:
+            model.update(x, model.winner(x), epoh, epohs)
+        # rand_idx = np.random.randint(0, X_train.shape[0])
+        # model.update(X_train[rand_idx], som.winner(X_train[rand_idx]), epoh, num_iterations)
 
-        som.train_batch(Xtrain, 1, verbose=False)
 
-        winner_coordinates = np.array([som.winner(x) for x in Xtrain]).T
-        cluster_index = np.ravel_multi_index(winner_coordinates, som_shape)
+        winning_neurons_train = np.array([model.winner(x) for x in X_train])
+        winning_neurons_test = np.array([model.winner(x) for x in X_test])
 
-        scat = ax.scatter(Xtest[:, 0], Xtest[:, 1], c=Ltest, marker='o', cmap='coolwarm')
-        centroids = ax.scatter([], [], marker='o', s=8, linewidths=10, color='red')
-        winner_points = ax.scatter([], [], marker='o', s=8, linewidths=10, color='#00FF00')
+        # Assign class labels to the winning neurons in the training data
+        predicted_labels_train = np.zeros(X_train.shape[0])
+        for i, (x, neuron) in enumerate(zip(X_train, winning_neurons_train)):
+            predicted_labels_train[i] = y_train[np.logical_and(winning_neurons_train[:, 0] == neuron[0], winning_neurons_train[:, 1] == neuron[1])][0]
 
-        centroids.set_offsets(som.get_weights().reshape(-1, 2))
-        winner_points.set_offsets(som.get_weights()[cluster_index].reshape(-1, 2))
+        # Assign class labels to the winning neurons in the test data
+        predicted_labels_test = np.zeros(X_test.shape[0])
+        for i, (x, neuron) in enumerate(zip(X_test, winning_neurons_test)):
+            predicted_labels_test[i] = y_train[np.logical_and(winning_neurons_train[:, 0] == neuron[0], winning_neurons_train[:, 1] == neuron[1])][0]
 
-        return scat, centroids, winner_points,
+        scatter1 = ax.scatter(X_test[:, 0], X_test[:, 1], c=predicted_labels_test, cmap='coolwarm', label='Predicted Labels (Test)')
+        centroids = model.get_weights()
+        scatters2 = []
+        colors = ['r', 'g', 'b', 'c', 'm', 'y', 'k']
+        for i, centroid in enumerate(centroids):
+            color = colors[i % len(colors)]  # Get a unique color for each centroid
+            scatter = ax.scatter(centroid[:, 0], centroid[:, 1], marker='s', s=50, linewidths=10, color=color)
+            scatters2.append(scatter)
+        title.set_text(f'epoh: {epoh+1}/{epohs}')
+        return scatter1, *scatters2, title
 
-    animation = FuncAnimation(fig, update, frames=epohs, interval=50, repeat=False)
-    return animation
+    anim = FuncAnimation(fig, update, frames=epohs, blit=True, interval=10, repeat=False )
+    return anim
+
 
 
 def plot():
@@ -104,34 +117,34 @@ def plot():
     ax1.set_xlabel("Άξονας Χ")
     ax1.set_ylabel("Άξονας Υ")
 
-
     winner_coordinates = np.array([som.winner(x) for x in Xtrain]).T
     cluster_index = np.ravel_multi_index(winner_coordinates, som_shape)
 
     ax2.set_title('Γραφική παράσταση ανταγωνιστικών νευρώνων')
     ax2.set_xlabel("Άξονας Χ")
     ax2.set_ylabel("Άξονας Υ")
+
     for c in np.unique(cluster_index):
-        plt.scatter(Xtrain[cluster_index == c, 0], Xtrain[cluster_index == c, 1], label='cluster='+str(c))
+        cluster_color = plt.cm.get_cmap('tab10')(c)
+        ax2.scatter(Xtrain[cluster_index == c, 0], Xtrain[cluster_index == c, 1], label='cluster='+str(c), color=cluster_color)
 
     for centroid in som.get_weights():
-        ax2.scatter(centroid[:, 0], centroid[:, 1], marker='o', s=8, linewidths=10, color='red')
+        ax2.scatter(centroid[:, 0], centroid[:, 1], marker='o', s=8, linewidths=10, color='#FF2800', alpha=0.2)
 
-    for x in Xtrain:
+    for x, c in zip(Xtrain, cluster_index):
         i, y = som.winner(x)
+        cluster_color = plt.cm.get_cmap('tab10')(c)
         winner = som.get_weights()[i, y]
-        ax2.scatter(winner[0], winner[1], marker='o', s=8, linewidths=10, color='#00FF00')
+        ax2.scatter(winner[0], winner[1], marker='o', s=8, linewidths=10, color=cluster_color)
 
-    plt.legend()
     plt.show()
 
-
-while True:
-    n = input("Please give a number that's a multiple of 8: ")
-    if n.isdigit() and int(n) % 8 == 0:
-        n = int(n)
-        break
-
+# while True:
+#     n = input("Please give a number that's a multiple of 8: ")
+#     if n.isdigit() and int(n) % 8 == 0:
+#         n = int(n)
+#         break
+n = 120
 print('''
 Your options are:
 1. Γραμμικά Διαχωρίσιμα Πρότυπα
@@ -142,10 +155,10 @@ Your options are:
 6. Τέλος
 ''')
 
-learning_rate = 0.05
-epohs = 1000
-k1 = 5
-k2 = 5
+learning_rate = 0.5
+epohs = 100
+k1 = 3
+k2 = 3
 
 while True:
     option = input("\nPlease pick an option: ")
@@ -185,16 +198,17 @@ while True:
     elif option == 3:
         Xtrain, Xtest, Ltrain, Ltest = BD.create_BigData3(n)
 
-        learning_rate = float(input("Please pick the learning rate of the algorith: "))
-        epohs = int(input("Please pick the number of epohs you want the algorith to run for: "))
+        # learning_rate = float(input("Please pick the learning rate of the algorith: "))
+        # epohs = int(input("Please pick the number of epohs you want the algorith to run for: "))
         k1 = int(input("Please give two numbers for the competitive neurons size, FIRST number: "))
         k2 = int(input("Please provide the SECOND number: "))
 
         som_shape = (k1, k2)
         som = MiniSom(som_shape[0], som_shape[1], Xtrain.shape[1], learning_rate=.5, neighborhood_function='gaussian')
         som.train_batch(Xtrain, epohs, verbose=False)
-        animation = plot_animated(Xtrain, Xtest, Ltest, som, som_shape, epohs, k1, k2)
-        plt.show()
+        #animation = plot_animated(Xtrain, Xtest, Ltest, som, som_shape, epohs, k1, k2)
+        anim = plot_animated(som, Xtrain, Ltrain, Xtest, Ltest, ax, fig, epohs, title=None, active=False, callback=None)
+        # plt.close()
         plot()
 
     elif option == 4:
@@ -233,12 +247,3 @@ while True:
 
     else:
         print("Thats not an option :(")
-
-
-# n = 120
-# Xtrain, Xtest, Ltrain, Ltest = BD.create_BigData3(n)
-
-# learning_rate = 0.05
-# epohs = 50
-# k1 = 4
-# k2 = 4
