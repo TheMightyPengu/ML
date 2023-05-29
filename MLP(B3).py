@@ -199,7 +199,7 @@ while True:
             ax4.relim()
             ax4.autoscale(True, True, True)
             ax4.set_title("MSE κατά την εκπαίδευση")
-            title4.set_text(f'Epoch: {epohs + 1}\nMSE: {mse[epohs]}')
+            title4.set_text(f'Epoh: {epohs + 1}\nMSE: {mse[epohs]}')
             ax4.set_xlabel("Εποχή")
             ax4.set_ylabel("MSE")
             ax4.set_xlim([0, epohs])
@@ -210,7 +210,7 @@ while True:
             ax4.set_xticklabels(ticks[::3])
 
             if (mse[epohs] < min_mse):
-                messagebox.showinfo(title="Training Complete", message=f"Hooray! The model has been trained successfully. Stopped at epoch {epohs} with an MSE of {mse[epohs]}")
+                messagebox.showinfo(title="Training Complete", message=f"Hooray! The model has been trained successfully. Stopped at Epoh {epohs} with an MSE of {mse[epohs]}")
                 print(f'Hooray! The model has been trained successfully. Stopped at epoh {epohs} with an MSE of {mse[epohs]}')
                 cb(Xtest, Ltest, Xtrain, predictions, xx, yy, contour_predictions, epohs)
             if (epohs+1 == clf.max_iter):

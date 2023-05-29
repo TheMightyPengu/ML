@@ -32,42 +32,42 @@ class Competitive_Learning:
             else:
                 ax1.scatter(Xtest[k][0], Xtest[k][1], marker='*', color='#FF00FF')
 
-    # def plot(self, Xtrain, Xtest, Ltest, epohs, training=False): #THIS IS THE TRUE COLORING
-    #     fig, ax1 = plt.subplots()
-    #     ax1.set_xlim([-0.015, 1.015])
-    #     ax1.set_ylim([-0.015, 1.015])
-    #     ax1.set_xlabel("Άξονας Χ")
-    #     ax1.set_ylabel("Άξονας Υ")
+    def plot(self, Xtrain, Xtest, Ltest, epohs, training=False): #THIS IS THE TRUE COLORING
+        fig, ax1 = plt.subplots()
+        ax1.set_xlim([-0.015, 1.015])
+        ax1.set_ylim([-0.015, 1.015])
+        ax1.set_xlabel("Άξονας Χ")
+        ax1.set_ylabel("Άξονας Υ")
 
-    #     prev_results = None
+        prev_results = None
 
-    #     for i in range(1, epohs + 1):
-    #         current_results = np.copy(self.w)
+        for i in range(1, epohs + 1):
+            current_results = np.copy(self.w)
 
-    #         for j, x in enumerate(Xtrain):
-    #             if training:
-    #                 self.partial_fit(x, epohs, i)
+            for j, x in enumerate(Xtrain):
+                if training:
+                    self.partial_fit(x, epohs, i)
 
-    #         ax1.cla()
-    #         ax1.scatter(self.w[:, 0], self.w[:, 1], marker='o', color='black', edgecolors='black', s=100)
+            ax1.cla()
+            ax1.scatter(self.w[:, 0], self.w[:, 1], marker='o', color='black', edgecolors='black', s=100)
 
-    #         for k in range(len(Xtest)):
-    #             if Ltest[k] == 0:
-    #                 ax1.scatter(Xtest[k][0], Xtest[k][1], marker='o', color='blue', edgecolors='blue', facecolors='none')
-    #             else:
-    #                 ax1.scatter(Xtest[k][0], Xtest[k][1], marker='*', color='#FF00FF')
+            for k in range(len(Xtest)):
+                if Ltest[k] == 0:
+                    ax1.scatter(Xtest[k][0], Xtest[k][1], marker='o', color='blue', edgecolors='blue', facecolors='none')
+                else:
+                    ax1.scatter(Xtest[k][0], Xtest[k][1], marker='*', color='#FF00FF')
 
-    #         ax1.set_title("Γράφημα προτύπων - Συνάψεων (Epoch: {})".format(i))
-    #         plt.pause(0.01)
+            ax1.set_title("Γράφημα προτύπων - Συνάψεων (Epoch: {})".format(i))
+            plt.pause(0.01)
 
-    #         if prev_results is not None and np.all(current_results == prev_results):
-    #             messagebox.showinfo(title="Training finished", message=f'The training has been finished because the results have been the same for two consecutive epohs, here are the results.')
-    #             self.plot2(i)
-    #             break
+            if prev_results is not None and np.all(current_results == prev_results):
+                messagebox.showinfo(title="Training finished", message=f'The training has been finished because the results have been the same for two consecutive epohs, here are the results.')
+                self.plot2(i)
+                break
 
-    #         prev_results = current_results 
+            prev_results = current_results 
 
-    #     plt.show()
+        plt.show()
 
     # def plot(self, Xtrain, Xtest, Ltest, epohs, training=False): #THIS IS THE CLUSTERING COLORING
     #     fig, ax1 = plt.subplots()
