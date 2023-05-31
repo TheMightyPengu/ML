@@ -32,7 +32,7 @@ class Competitive_Learning:
             else:
                 ax1.scatter(Xtest[k][0], Xtest[k][1], marker='*', color='#FF00FF')
 
-    def plot(self, Xtrain, Xtest, Ltest, epohs, training=False): #THIS IS THE TRUE COLORING
+    def plot(self, Xtrain, Xtest, Ltest, epohs, training=False): #THIS IS THE TRUE DATA COLORING
         fig, ax1 = plt.subplots()
         ax1.set_xlim([-0.015, 1.015])
         ax1.set_ylim([-0.015, 1.015])
@@ -69,7 +69,7 @@ class Competitive_Learning:
 
         plt.show()
 
-    # def plot(self, Xtrain, Xtest, Ltest, epohs, training=False): #THIS IS THE CLUSTERING COLORING
+    # def plot_cluster(self, Xtrain, Xtest, Ltest, epohs, training=False): #THIS IS THE CLUSTERING COLORING
     #     fig, ax1 = plt.subplots()
     #     ax1.set_xlim([-0.015, 1.015])
     #     ax1.set_ylim([-0.015, 1.015])
@@ -113,7 +113,7 @@ class Competitive_Learning:
 
     #     plt.show()
 
-    # def plot(self, Xtrain, Xtest, Ltest, epohs, training=False):   # this is prediction coloring
+    # def plot_classes(self, Xtrain, Xtest, Ltest, epohs, training=False):   # this is prediction coloring
     #     fig, ax1 = plt.subplots()
     #     ax1.set_xlim([-0.015, 1.015])
     #     ax1.set_ylim([-0.015, 1.015])
