@@ -10,7 +10,7 @@ from matplotlib.lines import Line2D
 
 
 
-# class dom :
+# class som :
 #     def __init__(self,nebrones:int):
 #         self.lr=1
 #         self.gitonia=1
